@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MusicTask</string>
+    <string name="network_error">Network Error</string>
+
+</resources>

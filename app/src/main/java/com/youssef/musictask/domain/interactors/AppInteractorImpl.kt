@@ -3,15 +3,17 @@ package com.youssef.musictask.domain.interactors
 import android.os.Handler
 import com.youssef.musictask.base.DataResult
 import com.youssef.musictask.data.pref.PrefHelperImpl
-import com.youssef.musictask.data.pref.model.Token
-import com.youssef.musictask.data.remote.HttpConnectionHelper
-import com.youssef.musictask.data.remote.InputStreamResponseReader
-import com.youssef.musictask.domain.mapper.convertToSongs
-import com.youssef.musictask.domain.mapper.convertToToken
+import com.youssef.musictask.data.pref.model.SavedToken
+import com.youssef.musictask.data.remote.ApiHelper
+import com.youssef.musictask.domain.Mocks
 import com.youssef.musictask.domain.models.Song
 import java.util.concurrent.Executor
 
-class AppInteractorImpl(private val executor: Executor, private val handler: Handler) :
+class AppInteractorImpl(
+    private val apiHelper: ApiHelper,
+    private val executor: Executor,
+    private val handler: Handler
+) :
     AppInteractor {
     private fun getSharedPref() = PrefHelperImpl.instance
     override fun isAccessTokenExpired(): Boolean {
@@ -22,7 +24,8 @@ class AppInteractorImpl(private val executor: Executor, private val handler: Han
     override fun getSongs(searchKey: String, callback: (DataResult<MutableList<Song>>) -> Unit) {
         executor.execute {
             try {
-                val response = getSynchronousSongsRequest(searchKey)
+                val response =
+                    apiHelper.getSongs(searchKey, getSharedPref()?.getToken()?.token ?: "")
                 handler.post {
                     callback(response)
                 }
@@ -34,10 +37,12 @@ class AppInteractorImpl(private val executor: Executor, private val handler: Han
         }
     }
 
-    override fun getTokenRequest(callback: (DataResult<Token>) -> Unit) {
+    override fun getMockedSongs(): MutableList<Song> = Mocks.mockSongs()
+
+    override fun getTokenRequest(callback: (DataResult<SavedToken>) -> Unit) {
         executor.execute {
             try {
-                val response = getSynchronousTokenRequest()
+                val response = apiHelper.getTokenRequest()
                 handler.post {
                     if (response is DataResult.Success) {
                         getSharedPref()?.setToken(response.data)
@@ -49,39 +54,6 @@ class AppInteractorImpl(private val executor: Executor, private val handler: Han
                     callback(DataResult.Error(e))
                 }
             }
-        }
-    }
-
-    private fun getSynchronousTokenRequest(): DataResult<Token> {
-        val httpConnectionHelper = HttpConnectionHelper()
-        val token: Token
-        return try {
-            val httpURLConnection = httpConnectionHelper.getTokenHttpConnection()
-            val response = InputStreamResponseReader.getResponse(httpURLConnection)
-            token = response.convertToToken()
-            DataResult.Success<Token>(token)
-        } catch (e: Exception) {
-            DataResult.Error(e)
-        } finally {
-            httpConnectionHelper.releaseAllConnections()
-        }
-    }
-
-    private fun getSynchronousSongsRequest(searchKey: String): DataResult<MutableList<Song>> {
-        val httpConnectionHelper = HttpConnectionHelper()
-        val songsList: MutableList<Song>
-        return try {
-            val httpURLConnection = httpConnectionHelper.getSongsHttpConnection(
-                getSharedPref()?.getToken()?.token ?: "",
-                searchKey
-            )
-            val response = InputStreamResponseReader.getResponse(httpURLConnection)
-            songsList = response.convertToSongs()
-            DataResult.Success<MutableList<Song>>(songsList)
-        } catch (e: Exception) {
-            DataResult.Error(e)
-        } finally {
-            httpConnectionHelper.releaseAllConnections()
         }
     }
 

@@ -3,7 +3,7 @@ package com.youssef.musictask.data.pref.model
 import java.io.Serializable
 import java.util.*
 
-data class Token(
+data class SavedToken(
     var expiredAt: Long,
     var token: String
 ) : Serializable {
@@ -12,6 +12,6 @@ data class Token(
     }
 
     companion object {
-        fun empty() = Token(expiredAt = 0, token = "")
+        fun empty() = SavedToken(expiredAt = 0, token = "")
     }
 }

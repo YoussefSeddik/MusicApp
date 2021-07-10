@@ -1,8 +1,8 @@
 package com.youssef.musictask.data.pref
 
-import com.youssef.musictask.data.pref.model.Token
+import com.youssef.musictask.data.pref.model.SavedToken
 
 interface PrefHelper {
-    fun setToken(token: Token)
-    fun getToken(): Token
+    fun setToken(savedToken: SavedToken)
+    fun getToken(): SavedToken
 }

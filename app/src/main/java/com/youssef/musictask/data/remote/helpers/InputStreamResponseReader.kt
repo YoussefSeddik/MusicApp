@@ -1,4 +1,4 @@
-package com.youssef.musictask.data.remote
+package com.youssef.musictask.data.remote.helpers
 
 import java.io.BufferedReader
 import java.io.InputStreamReader

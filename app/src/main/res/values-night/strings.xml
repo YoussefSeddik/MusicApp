@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ops_no_results_to_show">Ops!, no results to show!</string>
+    <string name="song_details">Song details</string>
+</resources>

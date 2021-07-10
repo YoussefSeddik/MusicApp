@@ -3,24 +3,24 @@ package com.youssef.musictask.data.pref
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import com.youssef.musictask.data.pref.model.Token
+import com.youssef.musictask.data.pref.model.SavedToken
 
 class PrefHelperImpl private constructor(context: Context) : PrefHelper {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(context.packageName, Application.MODE_PRIVATE)
     private val prefsEditor: SharedPreferences.Editor = sharedPreferences.edit()
 
-    override fun setToken(token: Token) {
+    override fun setToken(savedToken: SavedToken) {
         prefsEditor.apply {
-            putString(ARG_TOKEN, token.token)
+            putString(ARG_TOKEN, savedToken.token)
         }.apply()
         prefsEditor.apply {
-            putString(ARG_EXPIRED_AT, token.expiredAt.toString())
+            putString(ARG_EXPIRED_AT, savedToken.expiredAt.toString())
         }.apply()
     }
 
-    override fun getToken(): Token {
-        val token = Token.empty()
+    override fun getToken(): SavedToken {
+        val token = SavedToken.empty()
         token.token = sharedPreferences.getString(ARG_TOKEN, "") ?: ""
         token.expiredAt = (sharedPreferences.getString(ARG_EXPIRED_AT, "0") ?: "0").toLong()
         return token

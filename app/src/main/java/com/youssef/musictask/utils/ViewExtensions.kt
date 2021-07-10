@@ -17,10 +17,3 @@ fun View.secretMe() {
 fun View.hideMe() {
     this.visibility = View.INVISIBLE
 }
-
-fun ViewGroup.generateBitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.RGB_565)
-    val canvas = Canvas(bitmap)
-    this.draw(canvas)
-    return bitmap
-}

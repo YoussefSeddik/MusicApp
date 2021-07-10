@@ -1,6 +1,10 @@
 package com.youssef.musictask.domain.models
 
+import com.youssef.musictask.utils.Utils.getRandomString
+import java.io.Serializable
+
 data class Song(
+    var id: String,
     var title: String,
     var type: String,
     var artistName: String,
@@ -8,16 +12,22 @@ data class Song(
     var publishingDate: String,
     var duration: String,
     var trackNum: String
-){
-    companion object{
+) : Serializable {
+    val artistNameFirstChar: String
+        get() = artistName.firstOrNull()?.toString() ?: "M"
+
+    fun getSharedElementName() = getRandomString(8) + title + trackNum + image + trackNum
+
+    companion object {
         fun empty() = Song(
-            title          = "",
-            type           ="",
-            artistName     = "",
-            image          = "",
+            id = "",
+            title = "",
+            type = "",
+            artistName = "",
+            image = "",
             publishingDate = "",
-            duration       = "",
-            trackNum       = ""
+            duration = "",
+            trackNum = ""
         )
     }
 }

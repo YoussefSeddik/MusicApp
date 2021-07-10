@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">MusicTask</string>
+    <string name="search_music">Get your favorite songs</string>
     <string name="network_error">Network Error</string>
+    <string name="search_for_music">Search for music</string>
+    <string name="query_not_valid">Search query must be greater than 2 char</string>
+    <string name="ops_no_results_to_show">Ops!, no results to show!</string>
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="song_details">Song details</string>
 
 </resources>

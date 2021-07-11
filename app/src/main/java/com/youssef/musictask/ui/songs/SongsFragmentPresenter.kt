@@ -16,30 +16,27 @@ class SongsFragmentPresenter(private val appInteractor: AppInteractor) :
     }
 
     override fun getSongs(searchKey: String) {
+        if (searchKey.isEmpty()) return
         view?.showLoading()
         appInteractor.getSongs(searchKey) { result ->
             when (result) {
                 is DataResult.Success -> {
                     view?.hideLoading()
-                    if (result.data.isEmpty()) {
-                        getFilteredSavedSongs(searchKey)
-                    } else {
-                        view?.onGetSongsSuccess(result.data)
-                    }
+                    view?.onGetSongsSuccess(result.data)
                 }
                 is DataResult.Error -> {
                     view?.hideLoading()
-                    getFilteredSavedSongs(searchKey)
                     view?.showMessage(result.exception.message ?: "")
                 }
             }
         }
     }
 
-    private fun getFilteredSavedSongs(searchKey: String) {
+    private fun getFilteredFakedSongs(searchKey: String) {
         val savedList = appInteractor.getMockedSongs().map {
             it.copy()
-        }.filter { it.title.toLowerCase(Locale.US).contains(searchKey.toLowerCase(Locale.US)) }.toMutableList()
+        }.filter { it.title.toLowerCase(Locale.US).contains(searchKey.toLowerCase(Locale.US)) }
+            .toMutableList()
         view?.onGetSongsSuccess(savedList)
     }
 

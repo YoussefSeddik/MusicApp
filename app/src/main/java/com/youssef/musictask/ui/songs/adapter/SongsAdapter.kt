@@ -6,8 +6,7 @@ import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.youssef.musictask.R
-import com.youssef.musictask.data.remote.helpers.ImageToLoad
-import com.youssef.musictask.data.remote.helpers.image_loader_queue.ImageLoaderQueue
+import com.youssef.musictask.data.remote.helpers.image_loader_queue.ImageLoader
 import com.youssef.musictask.databinding.ItemSongBinding
 import com.youssef.musictask.domain.models.Song
 
@@ -46,9 +45,7 @@ class SongsAdapter(private val listener: SongsListener) :
 
         fun bind(song: Song) {
             itemUi.song = song
-            ImageLoaderQueue.push(ImageToLoad(itemUi.musicImageView, song.image))
-            ImageLoaderQueue.execute()
-
+            ImageLoader.load(song.image).into(itemUi.musicImageView)
         }
     }
 

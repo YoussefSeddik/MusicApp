@@ -6,38 +6,48 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.ImageView
 import androidx.core.os.HandlerCompat
-import com.youssef.musictask.data.remote.helpers.ImageToLoad
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-object ImageLoaderQueue {
+object ImageLoader {
     private var isExecuting = false
     private var memoryCache: MemoryCache = MemoryCache()
     private val tasksQueue: Queue<ImageToLoad> = LinkedList()
-    private val savedImagesWithUrls: MutableMap<ImageView, String> =
-        Collections.synchronizedMap(WeakHashMap())
-    private var poolExecutor = Executors.newSingleThreadExecutor()
-    private var mainThreadHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
+    private var poolExecutor: ExecutorService? = null
+    private var mainThreadHandler: Handler? = null
+    private var mUrl: String = ""
 
-    fun push(imageToLoad: ImageToLoad) {
-        savedImagesWithUrls[imageToLoad.imageView] = imageToLoad.url
-        checkIfShouldAddImageToQueue(imageToLoad)
+    init {
+        mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper())
+        poolExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun checkIfShouldAddImageToQueue(imageToLoad: ImageToLoad) {
+    fun load(url: String): ImageLoader {
+        mUrl = url
+        return this
+    }
+
+    fun into(imageView: ImageView) {
+        val imageToLoad = ImageToLoad(imageView, mUrl)
+        checkIfShouldAddImageToLoaderQueue(imageToLoad)
+    }
+
+    private fun checkIfShouldAddImageToLoaderQueue(imageToLoad: ImageToLoad) {
         val bitmap: Bitmap? = memoryCache[imageToLoad.url]
         if (bitmap != null)
             imageToLoad.imageView.setImageBitmap(bitmap)
         else {
             tasksQueue.add(imageToLoad)
+            execute()
         }
     }
 
-    fun execute() {
-        checkIfPoolExecutorIsShutdown()
+    private fun execute() {
+        checkIfResourcesExists()
         if (tasksQueue.isEmpty()) {
             isExecuting = false
             return
@@ -51,14 +61,17 @@ object ImageLoaderQueue {
         }
     }
 
-    private fun checkIfPoolExecutorIsShutdown() {
-        if (poolExecutor.isShutdown) {
+    private fun checkIfResourcesExists() {
+        if (poolExecutor == null || poolExecutor?.isShutdown == true) {
             poolExecutor = Executors.newSingleThreadExecutor()
+        }
+        if (mainThreadHandler == null) {
+            mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper())
         }
     }
 
     private fun startDownloadingImage(imageToLoad: ImageToLoad) {
-        poolExecutor.execute {
+        poolExecutor?.execute {
             var urlConnection: HttpURLConnection? = null
             try {
                 val uri = URL(imageToLoad.url)
@@ -66,14 +79,14 @@ object ImageLoaderQueue {
                 val inputStream: InputStream? = urlConnection.inputStream
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
-                mainThreadHandler.post {
+                mainThreadHandler?.post {
                     tasksQueue.poll()
                     isExecuting = false
                     loadImage(imageToLoad, bitmap)
                     execute()
                 }
             } catch (e: Exception) {
-                mainThreadHandler.post {
+                mainThreadHandler?.post {
                     isExecuting = false
                     tasksQueue.add(imageToLoad)
                     execute()
@@ -93,7 +106,8 @@ object ImageLoaderQueue {
     fun releaseResources() {
         memoryCache.clear()
         tasksQueue.clear()
-        savedImagesWithUrls.clear()
-        poolExecutor.shutdownNow()
+        poolExecutor?.shutdownNow()
+        poolExecutor = null
+        mainThreadHandler = null
     }
 }

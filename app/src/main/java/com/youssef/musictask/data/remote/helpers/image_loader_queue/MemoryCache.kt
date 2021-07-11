@@ -2,13 +2,10 @@ package com.youssef.musictask.data.remote.helpers.image_loader_queue
 
 import android.graphics.Bitmap
 import java.lang.ref.SoftReference
-import java.util.*
-import kotlin.collections.HashMap
 
 
 class MemoryCache {
-    private val cache: MutableMap<String, SoftReference<Bitmap>> =
-        Collections.synchronizedMap(HashMap<String, SoftReference<Bitmap>>())
+    private val cache: MutableMap<String, SoftReference<Bitmap>> = HashMap()
 
     operator fun get(id: String): Bitmap? {
         if (!cache.containsKey(id)) return null

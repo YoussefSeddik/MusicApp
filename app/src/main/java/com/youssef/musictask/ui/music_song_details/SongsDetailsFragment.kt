@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.youssef.musictask.R
-import com.youssef.musictask.data.remote.helpers.ImageToLoad
-import com.youssef.musictask.data.remote.helpers.image_loader_queue.ImageLoaderQueue
+import com.youssef.musictask.data.remote.helpers.image_loader_queue.ImageLoader
 import com.youssef.musictask.databinding.FragmentSongsDetailsBinding
 import com.youssef.musictask.domain.models.Song
 
@@ -39,8 +38,7 @@ class SongsDetailsFragment : Fragment() {
 
     private fun setUpSongDetails(song: Song) = with(ui) {
         ui.song = song
-        ImageLoaderQueue.push(ImageToLoad(ui.musicImageView, song.image))
-        ImageLoaderQueue.execute()
+        ImageLoader.load(song.image).into(ui.musicImageView)
     }
 
     companion object {

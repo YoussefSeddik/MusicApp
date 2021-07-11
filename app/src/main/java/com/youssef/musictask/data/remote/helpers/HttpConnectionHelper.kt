@@ -9,20 +9,20 @@ class HttpConnectionHelper() {
         val url = URL(BASE_URL + GET_TOKEN_PATH)
         val httpURLConnection = url.openConnection() as HttpURLConnection
         httpURLConnection.setRequestProperty(X_MM_GATEWAY_KEY, X_MM_GATEWAY_VALUE)
-        httpURLConnection.requestMethod = "POST"
+        httpURLConnection.requestMethod = RequestType.POST.name
         httpURLConnection.connect()
         return httpURLConnection
     }
 
     fun getSongsHttpConnection(searchText: String, accessToken: String): HttpURLConnection {
         val queryParam = "?$QUERY=$searchText"
-        val getMusicUrl = "$BASE_URL$GET_SONGS_PATH$queryParam"
+        val getMusicUrl = "$BASE_URL$GET_SONGS_PATH$queryParam&limit=20&includeArtists=false&filterByStreamingOnly=true"
 
         val url = URL(getMusicUrl)
         val httpURLConnection = url.openConnection() as HttpURLConnection
         httpURLConnection.setRequestProperty(X_MM_GATEWAY_KEY, X_MM_GATEWAY_VALUE)
         httpURLConnection.setRequestProperty(ACCESS_TOKEN_KEY, ACCESS_TOKEN_VALUE + accessToken)
-        httpURLConnection.requestMethod = "GET"
+        httpURLConnection.requestMethod = RequestType.GET.name
         httpURLConnection.connect()
         return httpURLConnection
     }
@@ -33,8 +33,13 @@ class HttpConnectionHelper() {
         const val GET_SONGS_PATH = "v2/api/sayt/flat"
         const val QUERY = "query"
         const val X_MM_GATEWAY_KEY = "X-MM-GATEWAY-KEY"
-        const val X_MM_GATEWAY_VALUE = "Ge6c853cf-5593-a196-efdb-e3fd7b881eca"
+        const val X_MM_GATEWAY_VALUE = "G2269608a-bf41-2dc7-cfea-856957fcab1e"
         const val ACCESS_TOKEN_KEY = "Authorization"
         const val ACCESS_TOKEN_VALUE = "Bearer "
+    }
+
+    enum class RequestType {
+        POST,
+        GET
     }
 }

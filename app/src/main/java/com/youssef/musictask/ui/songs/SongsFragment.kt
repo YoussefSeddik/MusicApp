@@ -122,15 +122,21 @@ class SongsFragment : BaseFragment<SongsFragmentContract.Presenter>(),
     override fun onQueryTextSubmit(query: String?): Boolean = true
 
     override fun onQueryTextChange(newText: String?): Boolean {
+        if (newText.isNullOrBlank().not()) {
+            queryTextChanged(newText ?: "")
+        }
+        return true
+    }
+
+    private fun queryTextChanged(newText: String) {
         FuturePromise.startPromiseAfter(1000) {
-            if (newText ?: "" != mSearchText) {
-                mSearchText = newText ?: ""
+            if (newText != mSearchText) {
+                mSearchText = newText
                 checkIfTokenIsExpired {
                     querySongs()
                 }
             }
         }
-        return true
     }
 
     override fun onSongClicked(song: Song, itemUi: ItemSongBinding) {
@@ -151,6 +157,10 @@ class SongsFragment : BaseFragment<SongsFragmentContract.Presenter>(),
             itemUi.musicImageView,
             song.image
         )
+        ViewCompat.setTransitionName(
+            itemUi.songTypeTextView,
+            song.type
+        )
     }
 
     private fun goToDetailsFragment(song: Song, itemUi: ItemSongBinding) {
@@ -166,6 +176,9 @@ class SongsFragment : BaseFragment<SongsFragmentContract.Presenter>(),
             ).addSharedElement(
                 itemUi.artistNameTextView,
                 "detailsArtistNameTextView"
+            ).addSharedElement(
+                itemUi.songTypeTextView,
+                "detailsSongTypeTextView"
             ).setCustomAnimations(
                 R.anim.slide_in_right_to_left,
                 R.anim.slide_out_right_to_left,

@@ -26,8 +26,8 @@ data class Song(
             artistName = "",
             image = "",
             publishingDate = "",
-            duration = "",
-            trackNum = ""
+            duration = "00:00",
+            trackNum = "0"
         )
     }
 }

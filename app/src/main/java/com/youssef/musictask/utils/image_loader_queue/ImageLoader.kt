@@ -1,4 +1,4 @@
-package com.youssef.musictask.data.remote.helpers.image_loader_queue
+package com.youssef.musictask.utils.image_loader_queue
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -19,6 +19,8 @@ object ImageLoader {
     private val tasksQueue: Queue<ImageToLoad> = LinkedList()
     private var poolExecutor: ExecutorService? = null
     private var mainThreadHandler: Handler? = null
+    private var imagesWantsToBeLoadedMap = WeakHashMap<ImageView, Long>()
+    private var images = mutableListOf<Long>()
     private var mUrl: String = ""
 
     init {
@@ -32,7 +34,8 @@ object ImageLoader {
     }
 
     fun into(imageView: ImageView) {
-        val imageToLoad = ImageToLoad(imageView, mUrl)
+        val currentTime = Calendar.getInstance().timeInMillis
+        val imageToLoad = ImageToLoad(imageView, mUrl,currentTime)
         checkIfShouldAddImageToLoaderQueue(imageToLoad)
     }
 
@@ -41,6 +44,7 @@ object ImageLoader {
         if (bitmap != null)
             imageToLoad.imageView.setImageBitmap(bitmap)
         else {
+            imagesWantsToBeLoadedMap[imageToLoad.imageView] = imageToLoad.createdAt
             tasksQueue.add(imageToLoad)
             execute()
         }
@@ -56,10 +60,17 @@ object ImageLoader {
             isExecuting = true
             val task = tasksQueue.element()
             task?.let {
+                if (imageViewNoLongerAvailable(it)) execute()
                 startDownloadingImage(task)
             }
         }
     }
+
+    private fun imageViewNoLongerAvailable(imageToLoad: ImageToLoad): Boolean {
+        val tag: Long? = imagesWantsToBeLoadedMap[imageToLoad.imageView]
+        return tag == null || tag != imageToLoad.createdAt
+    }
+
 
     private fun checkIfResourcesExists() {
         if (poolExecutor == null || poolExecutor?.isShutdown == true) {
@@ -98,9 +109,10 @@ object ImageLoader {
         }
     }
 
-    private fun loadImage(ImageToLoad: ImageToLoad, bitmap: Bitmap) {
-        ImageToLoad.imageView.setImageBitmap(bitmap)
-        memoryCache.put(ImageToLoad.url, bitmap)
+    private fun loadImage(imageToLoad: ImageToLoad, bitmap: Bitmap) {
+        if (imageViewNoLongerAvailable(imageToLoad)) return
+        imageToLoad.imageView.setImageBitmap(bitmap)
+        memoryCache.put(imageToLoad.url, bitmap)
     }
 
     fun releaseResources() {

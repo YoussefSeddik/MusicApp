@@ -187,6 +187,14 @@ class SongsFragment : BaseFragment<SongsFragmentContract.Presenter>(),
             ).commit()
     }
 
+    override fun showLoading() {
+        ui.progressBar.showMe()
+    }
+
+    override fun hideLoading() {
+        ui.progressBar.secretMe()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         ui.songsRecyclerView.adapter = null

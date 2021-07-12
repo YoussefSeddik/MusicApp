@@ -6,7 +6,7 @@ import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.youssef.musictask.R
-import com.youssef.musictask.data.remote.helpers.image_loader_queue.ImageLoader
+import com.youssef.musictask.utils.image_loader_queue.ImageLoader
 import com.youssef.musictask.databinding.ItemSongBinding
 import com.youssef.musictask.domain.models.Song
 

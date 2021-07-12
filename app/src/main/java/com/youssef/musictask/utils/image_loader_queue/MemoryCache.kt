@@ -1,4 +1,4 @@
-package com.youssef.musictask.data.remote.helpers.image_loader_queue
+package com.youssef.musictask.utils.image_loader_queue
 
 import android.graphics.Bitmap
 import java.lang.ref.SoftReference
